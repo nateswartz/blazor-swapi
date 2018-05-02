@@ -11,24 +11,34 @@
 else
 {
     <button onclick="@LoadAllSpecies" hidden="@allSpeciesLoaded">Load All Species</button>
+    <button onclick="@Reset">Reset The Page</button>
     <table class="table">
         <thead>
             <tr>
                 <th>Name</th>
                 <th>Classification</th>
-                <th>Language</th>
+                <th>Designation</th>
                 <th>Average Height</th>
+                <th>Skin Colors</th>
+                <th>Language</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var species in speciesList)
             {
-                <tr>
-                    <td>@species.name</td>
-                    <td>@species.classification</td>
-                    <td>@species.language</td>
-                    <td>@species.average_height</td>
-                </tr>
+            <tr>
+                <td>@species.name</td>
+                <td>@species.classification</td>
+                <td>@species.designation</td>
+                <td>@species.average_height</td>
+                <td>
+                    @foreach(var color in species.skin_colors.Split(','))
+                    {
+                    <div style="color: @color">@color</div>
+                    }
+                </td>
+                <td>@species.language</td>
+            </tr>
             }
         </tbody>
     </table>
@@ -41,48 +51,60 @@ else
 </style>
 
 @functions {
-List<Species> speciesList = new List<Species>();
-private bool allSpeciesLoaded = false;
+    List<Species> speciesList = new List<Species>();
+    private bool allSpeciesLoaded = false;
 
-protected override async Task OnInitAsync()
-{
-    speciesList = await GetSpecies();
-}
-
-private async Task<List<Species>> GetSpecies(bool all = false)
-{
-    var nextUrl = "https://swapi.co/api/species";
-    var species = new List<Species>();
-    do
+    protected override async Task OnInitAsync()
     {
-        var speciesResponse = await Http.GetJsonAsync<SpeciesResponse>(nextUrl);
-        species.AddRange(speciesResponse.results);
-        nextUrl = speciesResponse.next;
-        Console.WriteLine(nextUrl);
-    } while (!String.IsNullOrEmpty(nextUrl) && all);
-    return species;
-}
+        speciesList = await GetSpecies();
+    }
 
-private async void LoadAllSpecies()
-{
-    speciesList = new List<Species>();
-    speciesList = await GetSpecies(true);
-    allSpeciesLoaded = true;
-    this.StateHasChanged();
-}
+    private async Task<List<Species>> GetSpecies(bool all = false)
+    {
+        var nextUrl = "https://swapi.co/api/species";
+        var species = new List<Species>();
+        do
+        {
+            var speciesResponse = await Http.GetJsonAsync<SpeciesResponse>(nextUrl);
+            species.AddRange(speciesResponse.results);
+            nextUrl = speciesResponse.next;
+            Console.WriteLine(nextUrl);
+        } while (!String.IsNullOrEmpty(nextUrl) && all);
+        return species;
+    }
 
-class SpeciesResponse
-{
-    public int count { get; set; }
-    public List<Species> results { get; set; }
-    public string next { get; set; }
-}
+    private async void LoadAllSpecies()
+    {
+        speciesList = new List<Species>();
+        speciesList = await GetSpecies(true);
+        allSpeciesLoaded = true;
+        this.StateHasChanged();
+    }
 
-class Species
-{
-    public string name { get; set; }
-    public string classification { get; set; }
-    public string language { get; set; }
-    public string average_height { get; set; }
-}
+    private async void Reset()
+    {
+        allSpeciesLoaded = false;
+        speciesList = new List<Species>();
+        speciesList = await GetSpecies();
+        this.StateHasChanged();
+
+    }
+
+    class SpeciesResponse
+    {
+        public int count { get; set; }
+        public List<Species> results { get; set; }
+        public string next { get; set; }
+    }
+
+    class Species
+    {
+        public string name { get; set; }
+        public string classification { get; set; }
+        public string designation { get; set; }
+        public string average_height { get; set; }
+        public string skin_colors { get; set; }
+        public string language { get; set; }
+
+    }
 }

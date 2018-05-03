@@ -10,8 +10,10 @@
 }
 else
 {
-    <button onclick="@LoadAllSpecies" hidden="@allSpeciesLoaded">Load All Species</button>
-    <button onclick="@Reset">Reset The Page</button>
+    <div style="margin-bottom: 10px;">
+        <button class="btn btn-secondary" onclick="@LoadAllSpecies" hidden="@allSpeciesLoaded">Load All Species</button>
+        <button class="btn btn-secondary" onclick="@Reset">Reset The Page</button>
+    </div>
     <table class="table">
         <thead>
             <tr>
@@ -73,20 +75,18 @@ else
         return species;
     }
 
-    private async void LoadAllSpecies()
+    private async Task LoadAllSpecies()
     {
         speciesList = new List<Species>();
         speciesList = await GetSpecies(true);
         allSpeciesLoaded = true;
-        this.StateHasChanged();
     }
 
-    private async void Reset()
+    private async Task Reset()
     {
         allSpeciesLoaded = false;
         speciesList = new List<Species>();
         speciesList = await GetSpecies();
-        this.StateHasChanged();
 
     }
 

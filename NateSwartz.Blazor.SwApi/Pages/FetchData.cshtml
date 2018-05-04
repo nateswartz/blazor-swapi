@@ -1,110 +1,123 @@
 ﻿@page "/fetchdata"
 @inject HttpClient Http
 
-<h1>Star Wars Species</h1>
+<h1>Star Wars Characters</h1>
 
 <p>This component demonstrates fetching data from the server.</p>
-@if (speciesList.Count == 0)
+@if (peopleList.Count == 0)
 {
     <p><em>Loading...</em></p>
 }
 else
 {
+    @if (selectedSpecies != null && selectedSpecies.name != "Unknown")
+    {
+    <h4>Species Details</h4>
+    <div>Name - @selectedSpecies.name</div>
+    <div>Language - @selectedSpecies.language</div>
+    }
     <div style="margin-bottom: 10px;">
-        <button class="btn btn-secondary" onclick="@LoadAllSpecies" hidden="@allSpeciesLoaded">Load All Species</button>
+        <button class="btn btn-secondary" onclick="@LoadAllPeople" hidden="@allItemsLoaded">Load All People</button>
         <button class="btn btn-secondary" onclick="@Reset">Reset The Page</button>
     </div>
     <table class="table">
         <thead>
             <tr>
                 <th>Name</th>
-                <th>Classification</th>
-                <th>Designation</th>
-                <th>Average Height</th>
-                <th>Skin Colors</th>
-                <th>Language</th>
+                <th>Species</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var species in speciesList)
+            @foreach (var person in peopleList)
             {
-            <tr>
-                <td>@species.name</td>
-                <td>@species.classification</td>
-                <td>@species.designation</td>
-                <td>@species.average_height</td>
-                <td>
-                    @foreach(var color in species.skin_colors.Split(','))
-                    {
-                    <div style="color: @color">@color</div>
-                    }
-                </td>
-                <td>@species.language</td>
-            </tr>
+                <tr>
+                    <td>@person.name</td>
+                    <td><div style="color:darkblue;cursor:pointer" onclick="@(e => SelectSpecies(person))">@person.species_name</div></td>
+                </tr>
             }
         </tbody>
     </table>
 }
 
 <style>
-.hidden {
-    display: none;
-}
+    .hidden {
+        display: none;
+    }
 </style>
 
 @functions {
-    List<Species> speciesList = new List<Species>();
-    private bool allSpeciesLoaded = false;
+    List<Person> peopleList = new List<Person>();
+    private bool allItemsLoaded = false;
+    private Species selectedSpecies;
+    private Dictionary<string, string> speciesTable = new Dictionary<string, string>();
 
     protected override async Task OnInitAsync()
     {
-        speciesList = await GetSpecies();
+        peopleList = await GetPeople();
     }
 
-    private async Task<List<Species>> GetSpecies(bool all = false)
+    private async Task<List<Person>> GetPeople(bool all = false)
     {
-        var nextUrl = "https://swapi.co/api/species";
-        var species = new List<Species>();
+        var nextUrl = "https://swapi.co/api/people";
+        var people = new List<Person>();
         do
         {
-            var speciesResponse = await Http.GetJsonAsync<SpeciesResponse>(nextUrl);
-            species.AddRange(speciesResponse.results);
-            nextUrl = speciesResponse.next;
+            var peopleResponse = await Http.GetJsonAsync<PeopleResponse>(nextUrl);
+            people.AddRange(peopleResponse.results);
+            nextUrl = peopleResponse.next;
             Console.WriteLine(nextUrl);
         } while (!String.IsNullOrEmpty(nextUrl) && all);
-        return species;
+
+        foreach (var person in people)
+        {
+            if (person.species.Length > 0)
+            {
+                if (!speciesTable.ContainsKey(person.species[0]))
+                {
+                    var species = await Http.GetJsonAsync<Species>(person.species[0]);
+                    person.species_name = species.name;
+                    speciesTable[person.species[0]] = species.name;
+                    Console.WriteLine("Made request for species");
+                }
+                else
+                {
+                    person.species_name = speciesTable[person.species[0]];
+                }
+            }
+            else
+            {
+                person.species_name = "Unknown";
+            }
+        }
+        return people;
     }
 
-    private async Task LoadAllSpecies()
+    private async Task LoadAllPeople()
     {
-        speciesList = new List<Species>();
-        speciesList = await GetSpecies(true);
-        allSpeciesLoaded = true;
+        peopleList = new List<Person>();
+        peopleList = await GetPeople(true);
+        Console.WriteLine(peopleList.Count);
+        allItemsLoaded = true;
     }
 
     private async Task Reset()
     {
-        allSpeciesLoaded = false;
-        speciesList = new List<Species>();
-        speciesList = await GetSpecies();
+        peopleList = new List<Person>();
+        allItemsLoaded = false;
+        peopleList = await GetPeople();
+        selectedSpecies = null;
 
     }
 
-    class SpeciesResponse
+    private async Task SelectSpecies(Person person)
     {
-        public int count { get; set; }
-        public List<Species> results { get; set; }
-        public string next { get; set; }
-    }
-
-    class Species
-    {
-        public string name { get; set; }
-        public string classification { get; set; }
-        public string designation { get; set; }
-        public string average_height { get; set; }
-        public string skin_colors { get; set; }
-        public string language { get; set; }
-
+        if (person.species.Length > 0)
+        {
+            selectedSpecies = await Http.GetJsonAsync<Species>(person.species[0]);
+        }
+        else
+        {
+            selectedSpecies = new Species { name = "Unknown" };
+        }
     }
 }

@@ -10,17 +10,11 @@
 }
 else
 {
-    @if (selectedSpecies != null && selectedSpecies.name != "Unknown")
-    {
-    <h4>Species Details</h4>
-    <div>Name - @selectedSpecies.name</div>
-    <div>Language - @selectedSpecies.language</div>
-    }
     <div style="margin-bottom: 10px;">
-        <button class="btn btn-secondary" onclick="@LoadAllPeople" hidden="@allItemsLoaded">Load All People</button>
-        <button class="btn btn-secondary" onclick="@Reset">Reset The Page</button>
+        <button class="ui button" onclick="@LoadAllPeople" hidden="@allItemsLoaded">Load All People</button>
+        <button class="ui button" onclick="@Reset">Reset The Page</button>
     </div>
-    <table class="table">
+    <table class="ui table">
         <thead>
             <tr>
                 <th>Name</th>
@@ -39,6 +33,16 @@ else
     </table>
 }
 
+<div class="ui small modal" style="text-align: center;">
+    <div class="ui header">
+        Species Info
+    </div>
+    <div class="content">
+        <div>Name - @selectedSpecies.name</div>
+        <div>Language - @selectedSpecies.language</div>
+    </div>
+</div>
+
 <style>
     .hidden {
         display: none;
@@ -48,7 +52,7 @@ else
 @functions {
     List<Person> peopleList = new List<Person>();
     private bool allItemsLoaded = false;
-    private Species selectedSpecies;
+    private Species selectedSpecies = new Species();
     private Dictionary<string, string> speciesTable = new Dictionary<string, string>();
 
     protected override async Task OnInitAsync()
@@ -119,5 +123,6 @@ else
         {
             selectedSpecies = new Species { name = "Unknown" };
         }
+        RegisteredFunction.Invoke<string>("Show Modal");
     }
 }

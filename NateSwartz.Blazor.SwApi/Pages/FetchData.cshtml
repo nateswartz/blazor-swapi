@@ -33,6 +33,10 @@ else
             }
         </tbody>
     </table>
+    <div class="ui buttons">
+        <button class="ui button" onclick="@LoadPrevious" hidden="@(currentPage < 2)">Previous</button>
+        <button class="ui button" onclick="@LoadNext">Next</button>
+    </div>
 }
 
 <div class="ui mini modal">
@@ -57,7 +61,9 @@ else
 @functions {
     List<Person> peopleList = new List<Person>();
     private bool allItemsLoaded = false;
+    private bool hasPrevious = false;
     private Species selectedSpecies = new Species();
+    private int currentPage = 1;
     private Dictionary<string, string> speciesTable = new Dictionary<string, string>();
 
     protected override async Task OnInitAsync()
@@ -65,15 +71,18 @@ else
         peopleList = await GetPeople();
     }
 
-    private async Task<List<Person>> GetPeople(bool all = false)
+    private async Task<List<Person>> GetPeople(bool all = false, string startingUrl = "https://swapi.co/api/people")
     {
-        var nextUrl = "https://swapi.co/api/people";
+        var nextUrl = startingUrl;
         var people = new List<Person>();
         do
         {
             var peopleResponse = await Http.GetJsonAsync<PeopleResponse>(nextUrl);
             people.AddRange(peopleResponse.results);
             nextUrl = peopleResponse.next;
+            var pieces = nextUrl.Split('=');
+            currentPage = int.Parse(pieces[pieces.Length - 1]) - 1;
+            Console.WriteLine(currentPage);
             Console.WriteLine(nextUrl);
         } while (!String.IsNullOrEmpty(nextUrl) && all);
 
@@ -109,13 +118,32 @@ else
         allItemsLoaded = true;
     }
 
+    private async Task LoadNext()
+    {
+        Console.WriteLine(currentPage);
+        peopleList = new List<Person>();
+        allItemsLoaded = false;
+        peopleList = await GetPeople(false, "https://swapi.co/api/people/?page=" + (currentPage + 1));
+        selectedSpecies = new Species();
+        Console.WriteLine(peopleList.Count);
+        Console.WriteLine("Ending LoadNext");
+    }
+
+    private async Task LoadPrevious()
+    {
+        Console.WriteLine(currentPage);
+        peopleList = new List<Person>();
+        allItemsLoaded = false;
+        peopleList = await GetPeople(false, "https://swapi.co/api/people/?page=" + (currentPage - 1));
+        selectedSpecies = new Species();
+    }
+
     private async Task Reset()
     {
         peopleList = new List<Person>();
         allItemsLoaded = false;
         peopleList = await GetPeople();
-        selectedSpecies = null;
-
+        selectedSpecies = new Species();
     }
 
     private async Task SelectSpecies(Person person)

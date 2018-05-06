@@ -18,6 +18,7 @@ else
         <thead>
             <tr>
                 <th>Name</th>
+                <th>Hair Color</th>
                 <th>Species</th>
             </tr>
         </thead>
@@ -26,6 +27,7 @@ else
             {
                 <tr>
                     <td>@person.name</td>
+                    <td>@person.hair_color</td>
                     <td><div style="color:darkblue;cursor:pointer" onclick="@(e => SelectSpecies(person))">@person.species_name</div></td>
                 </tr>
             }
@@ -33,13 +35,16 @@ else
     </table>
 }
 
-<div class="ui small modal" style="text-align: center;">
+<div class="ui mini modal">
     <div class="ui header">
         Species Info
     </div>
     <div class="content">
         <div>Name - @selectedSpecies.name</div>
         <div>Language - @selectedSpecies.language</div>
+        <div>Classification - @selectedSpecies.classification</div>
+        <div>Designation - @selectedSpecies.designation</div>
+        <div>Skin Colors - @selectedSpecies.skin_colors</div>
     </div>
 </div>
 

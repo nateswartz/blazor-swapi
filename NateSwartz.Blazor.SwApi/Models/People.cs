@@ -12,6 +12,7 @@ namespace NateSwartz.Blazor.SwApi.Models
     public class Person
     {
         public string name { get; set; }
+        public string hair_color { get; set; }
         public string[] species { get; set; }
         public string species_name { get; set; }
     }

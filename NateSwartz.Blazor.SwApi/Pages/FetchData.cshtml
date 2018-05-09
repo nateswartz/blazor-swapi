@@ -28,6 +28,7 @@ else
                 <tr>
                     <td>@person.name</td>
                     <td>@person.hair_color</td>
+                    <td><img src=@person.image/></td>
                     <td><div style="color:darkblue;cursor:pointer" onclick="@(e => SelectSpecies(person))">@person.species_name</div></td>
                 </tr>
             }
@@ -100,6 +101,15 @@ else
                 else
                 {
                     person.species_name = speciesTable[person.species[0]];
+                }
+                var formattedName = person.name.Replace(' ', '-');
+                Console.WriteLine(formattedName);
+                var imageResponse = await Http.GetAsync("http://localhost:8080/api/images/characters/" + formattedName);
+                var url = await imageResponse.Content.ReadAsStringAsync();
+                if (!String.IsNullOrEmpty(url))
+                {
+                    person.image = url;
+
                 }
             }
             else

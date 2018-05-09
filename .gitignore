@@ -1,3 +1,5 @@
 .vs/
 NateSwartz.Blazor.SwApi/bin/
 NateSwartz.Blazor.SwApi/obj/
+NateSwartz.Blazor.SwApi.Server/obj/
+NateSwartz.Blazor.SwApi.Server/bin/

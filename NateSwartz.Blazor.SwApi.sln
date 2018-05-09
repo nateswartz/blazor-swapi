@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.27520.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NateSwartz.Blazor.SwApi", "NateSwartz.Blazor.SwApi\NateSwartz.Blazor.SwApi.csproj", "{2441595D-FD45-4339-B613-B790E350C307}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NateSwartz.Blazor.SwApi.Server", "NateSwartz.Blazor.SwApi.Server\NateSwartz.Blazor.SwApi.Server.csproj", "{C1FF83BF-10B7-4B17-B376-DE6ED5638BB2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{2441595D-FD45-4339-B613-B790E350C307}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2441595D-FD45-4339-B613-B790E350C307}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2441595D-FD45-4339-B613-B790E350C307}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C1FF83BF-10B7-4B17-B376-DE6ED5638BB2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1FF83BF-10B7-4B17-B376-DE6ED5638BB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1FF83BF-10B7-4B17-B376-DE6ED5638BB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1FF83BF-10B7-4B17-B376-DE6ED5638BB2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

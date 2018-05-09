@@ -69,10 +69,10 @@ else
 
     protected override async Task OnInitAsync()
     {
-        peopleList = await GetPeople();
+        await GetPeople();
     }
 
-    private async Task<List<Person>> GetPeople(bool all = false, string startingUrl = "https://swapi.co/api/people")
+    private async Task GetPeople(bool all = false, string startingUrl = "https://swapi.co/api/people")
     {
         var nextUrl = startingUrl;
         var people = new List<Person>();
@@ -89,6 +89,7 @@ else
 
         foreach (var person in people)
         {
+            Console.WriteLine("Processing " + person.name);
             if (person.species.Length > 0)
             {
                 if (!speciesTable.ContainsKey(person.species[0]))
@@ -102,13 +103,32 @@ else
                 {
                     person.species_name = speciesTable[person.species[0]];
                 }
-                var formattedName = person.name.Replace(' ', '-');
-                Console.WriteLine(formattedName);
-                var imageResponse = await Http.GetAsync("http://localhost:8080/api/images/characters/" + formattedName);
-                var url = await imageResponse.Content.ReadAsStringAsync();
-                if (!String.IsNullOrEmpty(url))
+                var names = person.name.Split(' ');
+                var namesToTry = new List<string>();
+                switch (names.Length)
                 {
-                    person.image = url;
+                    case 1:
+                        namesToTry.Add(names[0]);
+                        break;
+                    case 2:
+                        namesToTry.Add(names[0] + "-" + names[1]);
+                        break;
+                    case 3:
+                        namesToTry.Add(names[0] + "-" + names[1] + "-" + names[2]);
+                        namesToTry.Add(names[0] + "-" + names[2]);
+                        namesToTry.Add(names[0]);
+                        break;
+                }
+                foreach (var name in namesToTry)
+                {
+                    Console.WriteLine("Making request for " + name);
+                    var imageResponse = await Http.GetAsync("http://localhost:8080/api/images/characters/" + name);
+                    var url = await imageResponse.Content.ReadAsStringAsync();
+                    if (!String.IsNullOrEmpty(url))
+                    {
+                        person.image = url;
+                        break;
+                    }
 
                 }
             }
@@ -116,14 +136,15 @@ else
             {
                 person.species_name = "Unknown";
             }
+            peopleList.Add(person);
+            this.StateHasChanged();
         }
-        return people;
     }
 
     private async Task LoadAllPeople()
     {
         peopleList = new List<Person>();
-        peopleList = await GetPeople(true);
+        await GetPeople(true);
         Console.WriteLine(peopleList.Count);
         allItemsLoaded = true;
     }
@@ -133,7 +154,7 @@ else
         Console.WriteLine(currentPage);
         peopleList = new List<Person>();
         allItemsLoaded = false;
-        peopleList = await GetPeople(false, "https://swapi.co/api/people/?page=" + (currentPage + 1));
+        await GetPeople(false, "https://swapi.co/api/people/?page=" + (currentPage + 1));
         selectedSpecies = new Species();
         Console.WriteLine(peopleList.Count);
         Console.WriteLine("Ending LoadNext");
@@ -144,7 +165,7 @@ else
         Console.WriteLine(currentPage);
         peopleList = new List<Person>();
         allItemsLoaded = false;
-        peopleList = await GetPeople(false, "https://swapi.co/api/people/?page=" + (currentPage - 1));
+        await GetPeople(false, "https://swapi.co/api/people/?page=" + (currentPage - 1));
         selectedSpecies = new Species();
     }
 
@@ -152,7 +173,7 @@ else
     {
         peopleList = new List<Person>();
         allItemsLoaded = false;
-        peopleList = await GetPeople();
+        await GetPeople();
         selectedSpecies = new Species();
     }
 
